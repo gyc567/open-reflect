@@ -6,7 +6,7 @@
 
 **Dual Platform Support**: Claude Code (full plugin) + OpenCode (basic skill)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/open-reflect/open-reflect)
 
 ---
@@ -368,7 +368,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## 📜 License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+Open Source License
+This repository is licensed under the Apache License 2.0.
+See [LICENSE](LICENSE) file for details.
 
 ---
 

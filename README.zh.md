@@ -6,7 +6,7 @@
 
 **双平台支持**: Claude Code（完整插件） + OpenCode（基础技能）
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/gyc567/open-reflect)
 
 ---
@@ -365,7 +365,9 @@ cd ~/.claude/plugins/open-reflect
 
 ## 📜 许可证
 
-MIT 许可证 - 见 [LICENSE](LICENSE) 文件。
+开源许可证
+本项目采用 Apache License 2.0 许可。
+见 [LICENSE](LICENSE) 文件。
 
 ---
 

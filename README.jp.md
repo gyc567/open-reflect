@@ -6,7 +6,7 @@
 
 **デュアルプラットフォーム対応**: Claude Code（フルプラグイン） + OpenCode（基本スキル）
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/gyc567/open-reflect)
 
 ---
@@ -380,7 +380,9 @@ cd ~/.claude/plugins/open-reflect
 
 ## 📜 ライセンス
 
-MIT ライセンス - [LICENSE](LICENSE) ファイルを参照。
+オープンソースライセンス
+このリポジトリは Apache License 2.0 の下でライセンスされています。
+[LICENSE](LICENSE) ファイルを参照。
 
 ---
 
