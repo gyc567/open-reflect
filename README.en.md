@@ -71,7 +71,22 @@ Critical learnings are highlighted and processed first:
 - [Claude Code](https://claude.ai/code) CLI installed
 - `jq` for JSON processing: `brew install jq` (macOS)
 
-### Manual Installation (Recommended)
+### Option 1: One-Click Installation (Recommended)
+
+```bash
+# Run the installation script to automatically install the plugin
+curl -sSL https://raw.githubusercontent.com/gyc567/open-reflect/master/scripts/install-claude-plugin.sh | bash
+```
+
+This script will:
+- Check prerequisites (Git)
+- Clone the repository (temporary)
+- Copy plugin files to `~/.claude/plugins/open-reflect`
+- Make scripts executable
+- Clean up temporary files
+- Display installation status
+
+### Option 2: Manual Installation
 
 ```bash
 # Clone the repository
@@ -86,7 +101,21 @@ chmod +x ~/.claude/plugins/open-reflect/scripts/*.sh
 # Restart Claude Code to activate the plugin
 ```
 
-> **Note**: The Claude Code Marketplace installation is coming soon. Use manual installation above for now.
+> **Note**: The Claude Code Marketplace installation is coming soon. Use one of the methods above for now.
+
+### Verify Installation
+
+After installation, verify the plugin is working:
+
+```bash
+# Restart Claude Code and run a test command
+/reflect --view
+```
+
+If the plugin is installed correctly, you should see:
+```
+📭 No pending learnings. System is up to date.
+```
 
 ### OpenCode Plugin
 

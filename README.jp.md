@@ -71,7 +71,22 @@ Open-Reflect は、Claude Code との対話から学習内容を捉え、それ�
 - [Claude Code](https://claude.ai/code) CLI がインストール済み
 - JSON 処理用の `jq`: `brew install jq`（macOS）
 
-### 手動インストール（推奨）
+### 方法1：ワンクリックインストール（推奨）
+
+```bash
+# インストールスクリプトを実行してプラグインを自動インストール
+curl -sSL https://raw.githubusercontent.com/gyc567/open-reflect/master/scripts/install-claude-plugin.sh | bash
+```
+
+このスクリプトは以下のことを行います：
+- 前提条件を確認（Git）
+- リポジトリをクローン（一時的）
+- プラグインファイルを `~/.claude/plugins/open-reflect` にコピー
+- スクリプトを実行可能に
+- 一時ファイルをクリーンアップ
+- インストール状況を表示
+
+### 方法2：手動インストール
 
 ```bash
 # リポジトリをクローン
@@ -86,7 +101,21 @@ chmod +x ~/.claude/plugins/open-reflect/scripts/*.sh
 # プラグインをアクティブにするために Claude Code を再起動
 ```
 
-> **注意**: Claude Code Marketplace からのインストールは近日公開予定。今後は上記のManual Installationをご使用ください。
+> **注意**: Claude Code Marketplace からのインストールは近日公開予定。現在は上記のワンクリックインストールまたは手動インストールをご使用ください。
+
+### インストール確認
+
+インストール後、プラグインが正常に動作しているか確認：
+
+```bash
+# Claude Code を再起動してテストコマンドを実行
+/reflect --view
+```
+
+プラグインが正しくインストールされていれば、以下が表示されます：
+```
+📭 No pending learnings. System is up to date.
+```
 
 ### 手動インストール
 

@@ -71,7 +71,22 @@ Open-Reflect 从你与 Claude Code 的交互中捕获学习内容，并将它们
 - 已安装 [Claude Code](https://claude.ai/code) CLI
 - `jq` 用于 JSON 处理: `brew install jq`（macOS）
 
-### 手动安装（推荐）
+### 方式一：一键安装（推荐）
+
+```bash
+# 运行安装脚本自动安装插件
+curl -sSL https://raw.githubusercontent.com/gyc567/open-reflect/master/scripts/install-claude-plugin.sh | bash
+```
+
+此脚本将：
+- 检查前置条件（Git）
+- 克隆仓库（临时）
+- 复制插件文件到 `~/.claude/plugins/open-reflect`
+- 使脚本可执行
+- 清理临时文件
+- 显示安装状态
+
+### 方式二：手动安装
 
 ```bash
 # 克隆仓库
@@ -86,7 +101,21 @@ chmod +x ~/.claude/plugins/open-reflect/scripts/*.sh
 # 重启 Claude Code 以激活插件
 ```
 
-> **注意**: Claude Code Marketplace 安装即将推出。目前请使用上述手动安装方式。
+> **注意**: Claude Code Marketplace 安装即将推出。目前请使用上述一键安装或手动安装方式。
+
+### 验证安装
+
+安装后，验证插件是否正常工作：
+
+```bash
+# 重启 Claude Code 并运行测试命令
+/reflect --view
+```
+
+如果插件安装正确，您应该看到：
+```
+📭 No pending learnings. System is up to date.
+```
 
 ### OpenCode 插件
 
