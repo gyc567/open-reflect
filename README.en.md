@@ -98,28 +98,24 @@ chmod +x ~/.claude/plugins/open-reflect/scripts/*.sh
 # Restart Claude Code
 ```
 
-After installation, **restart Claude Code** (exit and reopen). Hooks will auto-configure and commands will be ready.
+### OpenCode Plugin
 
-### OpenCode CLI Installation
+Open-Reflect also provides an OpenCode plugin with the same core functionality:
 
 ```bash
 # Clone the repository
 git clone https://github.com/open-reflect/open-reflect.git
-cd open-reflect
 
-# Copy skill to OpenCode skills directory
-mkdir -p ~/.config/opencode/skill
-cp -r .opencode/skill/open-reflect ~/.config/opencode/skill/
+# Create OpenCode plugin directory
+mkdir -p ~/.config/opencode/plugin
 
-# OR copy to project directory
-cp -r .opencode/skill/open-reflect /path/to/your-project/.opencode/skill/
+# Copy OpenCode plugin files
+cp -r open-reflect/.opencode/plugin/* ~/.config/opencode/plugin/
 
-# Restart OpenCode
+# The plugin will be automatically loaded by OpenCode
 ```
 
-**Note**: OpenCode support is basic (skill loading + instructions only). For full functionality (auto-capture, hooks, evolution tracking), use Claude Code.
-
-See [docs/OPENCODE_COMPATIBILITY.md](docs/OPENCODE_COMPATIBILITY.md) for detailed comparison.
+See [docs/OPENCODE_PLUGIN.md](docs/OPENCODE_PLUGIN.md) for detailed documentation.
 
 ---
 

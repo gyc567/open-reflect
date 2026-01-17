@@ -98,26 +98,24 @@ chmod +x ~/.claude/plugins/open-reflect/scripts/*.sh
 # 重启 Claude Code
 ```
 
-### OpenCode CLI 安装
+### OpenCode 插件
+
+Open-Reflect 还提供具有相同核心功能的 OpenCode 插件：
 
 ```bash
 # 克隆仓库
 git clone https://github.com/gyc567/open-reflect.git
-cd open-reflect
 
-# 复制 skill 到 OpenCode skills 目录
-mkdir -p ~/.config/opencode/skill
-cp -r .opencode/skill/open-reflect ~/.config/opencode/skill/
+# 创建 OpenCode 插件目录
+mkdir -p ~/.config/opencode/plugin
 
-# 或复制到项目目录
-cp -r .opencode/skill/open-reflect /path/to/your-project/.opencode/skill/
+# 复制 OpenCode 插件文件
+cp -r open-reflect/.opencode/plugin/* ~/.config/opencode/plugin/
 
-# 重启 OpenCode
+# 插件将被 OpenCode 自动加载
 ```
 
-**注意**: OpenCode 支持是基础的（仅技能加载和指令）。如需完整功能（自动捕获、hooks、演化追踪），请使用 Claude Code。
-
-详见 [docs/OPENCODE_COMPATIBILITY.zh.md](docs/OPENCODE_COMPATIBILITY.zh.md) 详细比较。
+详细文档请参见 [docs/OPENCODE_PLUGIN.md](docs/OPENCODE_PLUGIN.zh.md)。
 
 ---
 

@@ -1,0 +1,21 @@
+{
+  "name": "open-reflect",
+  "version": "1.0.0",
+  "description": "Self-learning system with knowledge evolution tracking for OpenCode",
+  "author": {
+    "name": "OpenReflect Team",
+    "url": "https://github.com/gyc567/open-reflect"
+  },
+  "repository": "https://github.com/gyc567/open-reflect",
+  "license": "MIT",
+  "keywords": [
+    "opencode",
+    "self-learning",
+    "reflection",
+    "knowledge",
+    "memory"
+  ],
+  "engines": {
+    "opencode": ">=1.0.0"
+  }
+}
