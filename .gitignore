@@ -1,0 +1,301 @@
+# ============================================
+# Open-Reflect .gitignore
+# 安全和隐私保护配置
+# ============================================
+
+# ------------------------------------------------
+# Claude Code 敏感数据
+# ------------------------------------------------
+
+# 学习队列（包含用户修正和偏好）
+.claude/learnings-queue.json
+.claude/openreflect-queue.json
+.claude/openreflect-backups/
+
+# 项目特定的反射文件（用户知识）
+**/REFLECT.md
+**/.reflect-initialized
+
+# 会话数据（包含对话历史）
+.claude/projects/
+.claude/sessions/
+
+# 缓存文件
+.claude/cache/
+.claude/.cache/
+.claude/cache-*/
+.claude/*.tmp
+
+# 临时文件
+.claude/*.log
+.claude/*.bak
+.claude/*~
+.claude/.*.swp
+
+# ------------------------------------------------
+# 系统文件
+# ------------------------------------------------
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Linux
+*.swp
+*.swo
+*~
+.direnv
+.envrc
+
+# Windows
+Thumbs.db
+ehthumbs.db
+*.lnk
+$RECYCLE.BIN/
+
+# IDE 和编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+.tern-port
+.nvmrc
+.eslintcache
+
+# ------------------------------------------------
+# 临时和备份文件
+# ------------------------------------------------
+
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+*.rej
+*.patch
+*.diff
+
+# Shell 脚本生成的临时文件
+*.tmp.sh
+*.temp.sh
+
+# ------------------------------------------------
+# 日志文件
+# ------------------------------------------------
+
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log.*
+
+# ------------------------------------------------
+# 依赖和构建
+# ------------------------------------------------
+
+node_modules/
+dist/
+build/
+.cache/
+*.egg-info/
+.eggs/
+*.egg
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.tox/
+.coverage
+.coveragerc
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+*.pot
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+
+# Rust
+target/
+Cargo.lock
+
+# ------------------------------------------------
+# 配置文件（敏感）
+# ------------------------------------------------
+
+.env
+.env.local
+.env.*.local
+secrets.yaml
+credentials.json
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# ------------------------------------------------
+# 数据库和存储
+# ------------------------------------------------
+
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.wal
+*.shm
+
+# ------------------------------------------------
+# 测试覆盖率
+# ------------------------------------------------
+
+coverage/
+.nyc_output/
+
+# ------------------------------------------------
+# Open-Reflect 特定
+# ------------------------------------------------
+
+# 忽略示例文件，只提交模板
+REFLECT.md.example
+
+# 忽略测试输出
+test-results/
+playwright-report/
+test-runner-results/
+
+# 忽略本地开发记录
+.sisyphus/
+*.local.md
+
+# ------------------------------------------------
+# 重新添加必要的目录结构（空目录）
+# ------------------------------------------------
+# 强制保留以下空目录（如果需要）
+# 取消注释以下行来保留这些目录：
+# !lib/
+# !docs/
+
+# ------------------------------------------------
+# 通用忽略规则
+# ------------------------------------------------
+
+# 压缩文件
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# 办公文档
+~$*.docx
+~$*.xlsx
+~$*.pptx
+
+# 字体文件
+*.eot
+*.otf
+*.ttf
+*.woff
+*.woff2
+
+# 图像文件（大型）
+*.psd
+*.ai
+*.eps
+
+# ------------------------------------------------
+# 语言特定
+# ------------------------------------------------
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+
+# JavaScript/TypeScript
+node_modules/
+*.tsbuildinfo
+.next/
+.out/
+dist/
+build/
+*.local
+
+# Ruby
+.bundle/
+vendor/bundle/
+Gemfile.lock
+
+# Java
+*.class
+.gradle/
+build/
+
+# C/C++
+*.o
+*.a
+*.so
+*.dylib
+
+# ============================================
+# 保护性规则：永不提交
+# ============================================
+
+# 强制忽略所有包含敏感信息的文件
+**/*secrets*
+**/*credentials*
+**/*private*
+**/*sensitive*
+
+# 强制忽略所有日志文件（除非特别需要）
+*.log
+logs/
+
+# 强制忽略所有临时文件
+*.tmp
+*.temp
+tmp/
+temp/
+
+# ============================================
+# GitHub/gitignore 模板引用
+# ============================================
+
+# 如果项目需要，可以取消以下行的注释：
+# include the standard global gitignore
+# !.gitignore_global
+
+# end of .gitignore

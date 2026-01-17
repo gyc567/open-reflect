@@ -1,0 +1,15 @@
+{
+  "name": "open-reflect",
+  "version": "1.0.0",
+  "description": "Advanced self-learning and reflection system with evolutionary knowledge tracking",
+  "author": "OpenReflect Team",
+  "repository": "https://github.com/open-reflect/open-reflect",
+  "license": "MIT",
+  "keywords": [
+    "self-learning",
+    "reflection",
+    "knowledge-evolution",
+    "memory",
+    "learnings"
+  ]
+}
