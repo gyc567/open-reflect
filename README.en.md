@@ -71,23 +71,11 @@ Critical learnings are highlighted and processed first:
 - [Claude Code](https://claude.ai/code) CLI installed
 - `jq` for JSON processing: `brew install jq` (macOS)
 
-### Install from Marketplace
-
-```bash
-# Add the marketplace
-claude plugin marketplace add open-reflect/open-reflect
-
-# Install the plugin
-claude plugin install open-reflect@open-reflect-marketplace
-
-# IMPORTANT: Restart Claude Code to activate the plugin
-```
-
-### Manual Installation
+### Manual Installation (Recommended)
 
 ```bash
 # Clone the repository
-git clone https://github.com/open-reflect/open-reflect.git
+git clone https://github.com/gyc567/open-reflect.git
 
 # Copy to Claude plugins directory
 cp -r open-reflect ~/.claude/plugins/open-reflect
@@ -95,8 +83,10 @@ cp -r open-reflect ~/.claude/plugins/open-reflect
 # Make scripts executable
 chmod +x ~/.claude/plugins/open-reflect/scripts/*.sh
 
-# Restart Claude Code
+# Restart Claude Code to activate the plugin
 ```
+
+> **Note**: The Claude Code Marketplace installation is coming soon. Use manual installation above for now.
 
 ### OpenCode Plugin
 
