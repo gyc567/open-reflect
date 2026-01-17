@@ -12,6 +12,8 @@
 
 import type { Plugin } from "@opencode-ai/plugin"
 import { tool } from "@opencode-ai/plugin"
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs"
+import { join } from "path"
 
 // ============================================================================
 // Types
@@ -25,6 +27,7 @@ interface QueueEntry {
   timestamp: string
   project: string
   status: "pending" | "processed"
+  processedAt?: string
 }
 
 interface PluginInput {
@@ -64,7 +67,7 @@ const PATTERNS = {
     { pattern: /not right/i, confidence: 0.70 },
     { pattern: /^[.!?]*actually[,. ]/i, confidence: 0.65 },
     { pattern: /I meant/i, confidence: 0.80 },
-    { pattern: /I said/i, confidence: 0.80 },
+    { pattern: /I (said|wrote|mentioned)\s+wrong/i, confidence: 0.60 },
     { pattern: /use .+ not/i, confidence: 0.85 }
   ],
   explicit: [
@@ -78,7 +81,7 @@ const PATTERNS = {
     { pattern: /that's exactly/i, confidence: 0.75 },
     { pattern: /that's what I wanted/i, confidence: 0.75 },
     { pattern: /great approach/i, confidence: 0.70 },
-    { pattern: /keep doing this/i, confidence: 0.70 },
+    { pattern: /keep doing this/i, confidence: 0.80 },
     { pattern: /love it/i, confidence: 0.70 },
     { pattern: /excellent/i, confidence: 0.70 },
     { pattern: /nailed it/i, confidence: 0.70 }
@@ -89,28 +92,48 @@ const PATTERNS = {
 // Utility Functions
 // ============================================================================
 
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message
+  }
+  if (typeof error === "string") {
+    return error
+  }
+  return "Unknown error"
+}
+
+function validateQueueData(data: unknown): data is QueueEntry[] {
+  if (!Array.isArray(data)) return false
+  return data.every(item =>
+    typeof item === "object" &&
+    item !== null &&
+    typeof (item as any).id === "string" &&
+    typeof (item as any).type === "string" &&
+    typeof (item as any).confidence === "number" &&
+    typeof (item as any).message === "string" &&
+    typeof (item as any).timestamp === "string" &&
+    typeof (item as any).project === "string" &&
+    typeof (item as any).status === "string" &&
+    ((item as any).processedAt === undefined || typeof (item as any).processedAt === "string")
+  )
+}
+
 function getQueueFilePath(directory: string): string {
-  const { existsSync, mkdirSync, writeFileSync } = require("fs")
-  const { join } = require("path")
-  
   const configDir = join(directory, ".opencode")
   const queueFile = join(configDir, "openreflect-queue.json")
-  
+
   if (!existsSync(configDir)) {
     mkdirSync(configDir, { recursive: true })
   }
-  
+
   if (!existsSync(queueFile)) {
     writeFileSync(queueFile, "[]", "utf-8")
   }
-  
+
   return queueFile
 }
 
 function getReflectFilePath(directory: string): string {
-  const { existsSync, writeFileSync, readFileSync } = require("fs")
-  const { join } = require("path")
-  
   const reflectFile = join(directory, "REFLECT.md")
   
   if (!existsSync(reflectFile)) {
@@ -159,15 +182,19 @@ function detectLearning(message: string): { type: string; confidence: number; ma
 }
 
 async function addToQueue(input: PluginInput, message: string): Promise<void> {
-  const { readFileSync, writeFileSync } = require("fs")
   const queueFile = getQueueFilePath(input.directory)
   const detection = detectLearning(message)
-  
+
   if (!detection) return
-  
+
   try {
-    const queueData: QueueEntry[] = JSON.parse(readFileSync(queueFile, "utf-8"))
-    
+    const rawData = readFileSync(queueFile, "utf-8")
+    const parsedData = JSON.parse(rawData)
+
+    if (!validateQueueData(parsedData)) {
+      throw new Error("Invalid queue data structure")
+    }
+
     const learning: QueueEntry = {
       id: Date.now().toString(),
       type: detection.type as "correction" | "positive" | "explicit",
@@ -177,10 +204,10 @@ async function addToQueue(input: PluginInput, message: string): Promise<void> {
       project: input.project.name,
       status: "pending"
     }
-    
-    queueData.push(learning)
-    writeFileSync(queueFile, JSON.stringify(queueData, null, 2), "utf-8")
-    
+
+    parsedData.push(learning)
+    writeFileSync(queueFile, JSON.stringify(parsedData, null, 2), "utf-8")
+
     await input.client.app.log({
       service: "open-reflect",
       level: "info",
@@ -191,114 +218,191 @@ async function addToQueue(input: PluginInput, message: string): Promise<void> {
     await input.client.app.log({
       service: "open-reflect",
       level: "error",
-      message: `Failed to add learning to queue: ${error}`,
-      extra: {}
+      message: `Failed to add learning to queue: ${getErrorMessage(error)}`,
+      extra: { errorType: typeof error }
     })
   }
 }
 
 async function processLearnings(input: PluginInput): Promise<string> {
-  const { readFileSync, writeFileSync } = require("fs")
   const queueFile = getQueueFilePath(input.directory)
-  
+
   try {
-    const queueData: QueueEntry[] = JSON.parse(readFileSync(queueFile, "utf-8"))
-    
+    const rawData = readFileSync(queueFile, "utf-8")
+    const queueData = JSON.parse(rawData)
+
+    if (!validateQueueData(queueData)) {
+      return "❌ Queue data is corrupted. Please check openreflect-queue.json"
+    }
+
     if (queueData.length === 0) {
       return "No pending learnings to process."
     }
-    
+
     const reflectFile = getReflectFilePath(input.directory)
     let reflectContent = readFileSync(reflectFile, "utf-8")
     const timestamp = new Date().toISOString().split("T")[0]
-    
+
     // Process each learning
     for (const learning of queueData) {
       if (learning.status === "pending") {
         const newEntry = `\n### ${timestamp}\n- ${learning.message} *(source: ${learning.type}, confidence: ${learning.confidence})*`
-        
+
         const sectionMatch = reflectContent.match(/(## 🎯 Learning Categories)/)
         if (sectionMatch) {
           const insertPoint = sectionMatch.index! + sectionMatch[0].length
           reflectContent = reflectContent.slice(0, insertPoint) + newEntry + reflectContent.slice(insertPoint)
         }
-        
+
         learning.status = "processed"
         learning.processedAt = timestamp
       }
     }
-    
+
     writeFileSync(reflectFile, reflectContent, "utf-8")
     writeFileSync(queueFile, JSON.stringify(queueData, null, 2), "utf-8")
-    
-    const processedCount = queueData.filter(l => l.status === "processed").length
-    
+
+    const processedCount = queueData.filter((l: QueueEntry) => l.status === "processed").length
+
     await input.client.app.log({
       service: "open-reflect",
       level: "info",
       message: `Processed ${processedCount} learnings`,
       extra: {}
     })
-    
+
     return `✅ Processed ${processedCount} learnings and updated REFLECT.md`
   } catch (error) {
-    return `❌ Error processing learnings: ${error}`
+    return `❌ Error processing learnings: ${getErrorMessage(error)}`
   }
 }
 
 async function clearQueue(input: PluginInput): Promise<string> {
-  const { readFileSync, writeFileSync } = require("fs")
   const queueFile = getQueueFilePath(input.directory)
-  
+
   try {
-    const queueData: QueueEntry[] = JSON.parse(readFileSync(queueFile, "utf-8"))
+    const rawData = readFileSync(queueFile, "utf-8")
+    const queueData = JSON.parse(rawData)
+
+    if (!validateQueueData(queueData)) {
+      return "❌ Queue data is corrupted. Please check openreflect-queue.json"
+    }
+
     const count = queueData.length
-    
+
     // Clear queue
     writeFileSync(queueFile, "[]", "utf-8")
-    
+
     await input.client.app.log({
       service: "open-reflect",
       level: "info",
       message: `Cleared ${count} learnings`,
       extra: { count }
     })
-    
+
     return `🗑️ Cleared ${count} learnings.`
   } catch (error) {
-    return `❌ Error clearing queue: ${error}`
+    return `❌ Error clearing queue: ${getErrorMessage(error)}`
+  }
+}
+
+async function exportQueue(input: PluginInput, format: "csv" | "json" | "markdown"): Promise<string> {
+  const queueFile = getQueueFilePath(input.directory)
+
+  try {
+    const rawData = readFileSync(queueFile, "utf-8")
+    const queueData = JSON.parse(rawData)
+
+    if (!validateQueueData(queueData)) {
+      return "❌ Queue data is corrupted"
+    }
+
+    if (queueData.length === 0) {
+      return "❌ No learnings to export"
+    }
+
+    const timestamp = new Date().toISOString().split("T")[0]
+    const exportDir = join(input.directory, ".opencode", "exports")
+
+    if (!existsSync(exportDir)) {
+      mkdirSync(exportDir, { recursive: true })
+    }
+
+    let content = ""
+    let fileName = ""
+
+    if (format === "csv") {
+      fileName = `learnings-${timestamp}.csv`
+      const headers = "ID,Type,Confidence,Message,Timestamp,Status\n"
+      const rows = queueData.map((l: QueueEntry) =>
+        `"${l.id}","${l.type}",${l.confidence},"${l.message.replace(/"/g, '""')}","${l.timestamp}","${l.status}"`
+      ).join("\n")
+      content = headers + rows
+    } else if (format === "markdown") {
+      fileName = `learnings-${timestamp}.md`
+      content = `# Learning Export - ${timestamp}\n\n`
+      for (const learning of queueData) {
+        const icon = learning.type === "explicit" ? "🔴" :
+          learning.type === "correction" ? "🔄" :
+            learning.type === "positive" ? "✅" : "📝"
+        content += `${icon} **${learning.type}** (${learning.confidence}%)\n`
+        content += `> ${learning.message}\n`
+        content += `> _${learning.timestamp}_\n\n`
+      }
+    } else {
+      fileName = `learnings-${timestamp}.json`
+      content = JSON.stringify(queueData, null, 2)
+    }
+
+    const filePath = join(exportDir, fileName)
+    writeFileSync(filePath, content, "utf-8")
+
+    await input.client.app.log({
+      service: "open-reflect",
+      level: "info",
+      message: `Exported ${queueData.length} learnings to ${format}`,
+      extra: { fileName, count: queueData.length }
+    })
+
+    return `✅ Exported ${queueData.length} learnings to ${fileName}\nLocation: ${filePath}`
+  } catch (error) {
+    return `❌ Error exporting queue: ${getErrorMessage(error)}`
   }
 }
 
 async function viewQueue(input: PluginInput): Promise<string> {
-  const { readFileSync } = require("fs")
   const queueFile = getQueueFilePath(input.directory)
-  
+
   try {
-    const queueData: QueueEntry[] = JSON.parse(readFileSync(queueFile, "utf-8"))
-    
+    const rawData = readFileSync(queueFile, "utf-8")
+    const queueData = JSON.parse(rawData)
+
+    if (!validateQueueData(queueData)) {
+      return "❌ Queue data is corrupted. Please check openreflect-queue.json"
+    }
+
     if (queueData.length === 0) {
       return "📭 No pending learnings. System is up to date."
     }
-    
+
     let output = `📊 **Pending Learnings: ${queueData.length}**\n\n`
-    
+
     for (let i = 0; i < queueData.length; i++) {
       const learning = queueData[i]
-      const icon = learning.type === "explicit" ? "🔴" : 
-                   learning.type === "correction" ? "🔄" : 
-                   learning.type === "positive" ? "✅" : "📝"
-      
+      const icon = learning.type === "explicit" ? "🔴" :
+        learning.type === "correction" ? "🔄" :
+          learning.type === "positive" ? "✅" : "📝"
+
       output += `${icon} **#${i + 1}** ${learning.type} (${learning.confidence}%)\n`
       output += `   ${learning.message.substring(0, 80)}${learning.message.length > 80 ? "..." : ""}\n`
       output += `   _${learning.timestamp}_\n\n`
     }
-    
+
     output += `---\n💡 Run \`/repo\` to process these learnings`
-    
+
     return output
   } catch (error) {
-    return `❌ Error viewing queue: ${error}`
+    return `❌ Error viewing queue: ${getErrorMessage(error)}`
   }
 }
 
@@ -317,16 +421,27 @@ export const OpenReflectPlugin: Plugin = async ({ client, project, directory, wo
   return {
     // Session compaction hook - remind user about pending learnings
     "session.compacted": async (input, output) => {
-      const { readFileSync } = require("fs")
       const queueFile = getQueueFilePath(directory)
-      
+
       try {
-        const queueData: QueueEntry[] = JSON.parse(readFileSync(queueFile, "utf-8"))
-        const pendingCount = queueData.filter(l => l.status === "pending").length
-        
+        const rawData = readFileSync(queueFile, "utf-8")
+        const queueData = JSON.parse(rawData)
+
+        if (!validateQueueData(queueData)) {
+          await client.app.log({
+            service: "open-reflect",
+            level: "warn",
+            message: "Queue data is corrupted",
+            extra: {}
+          })
+          return
+        }
+
+        const pendingCount = queueData.filter((l: QueueEntry) => l.status === "pending").length
+
         if (pendingCount > 0) {
           output.context.push(`## Open-Reflect Learnings\nYou have ${pendingCount} pending learnings. Run /repo to process them.`)
-          
+
           await client.app.log({
             service: "open-reflect",
             level: "warn",
@@ -334,8 +449,13 @@ export const OpenReflectPlugin: Plugin = async ({ client, project, directory, wo
             extra: {}
           })
         }
-      } catch {
-        // Ignore errors
+      } catch (error) {
+        await client.app.log({
+          service: "open-reflect",
+          level: "error",
+          message: `Failed to check queue during compaction: ${getErrorMessage(error)}`,
+          extra: {}
+        })
       }
     },
     
@@ -372,7 +492,7 @@ export const OpenReflectPlugin: Plugin = async ({ client, project, directory, wo
           return await processLearnings(ctx as PluginInput)
         }
       }),
-      
+
       "skip-reflect": tool({
         description: "Clear all pending learnings without processing",
         args: {},
@@ -380,12 +500,22 @@ export const OpenReflectPlugin: Plugin = async ({ client, project, directory, wo
           return await clearQueue(ctx as PluginInput)
         }
       }),
-      
+
       "view-queue": tool({
         description: "View pending learnings without processing",
         args: {},
         async execute(_, ctx) {
           return await viewQueue(ctx as PluginInput)
+        }
+      }),
+
+      "export-reflect": tool({
+        description: "Export learnings to CSV, JSON, or Markdown format",
+        args: {
+          format: tool.schema.enum("csv", "json", "markdown").describe("Export format: csv, json, or markdown")
+        },
+        async execute(args, ctx) {
+          return await exportQueue(ctx as PluginInput, args.format as "csv" | "json" | "markdown")
         }
       })
     }
