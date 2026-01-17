@@ -5,8 +5,8 @@
   "author": {
     "name": "OpenReflect Team"
   },
-  "repository": "https://github.com/open-reflect/open-reflect",
-  "license": "MIT",
+  "repository": "https://github.com/gyc567/open-reflect",
+  "license": "Apache-2.0",
   "keywords": [
     "claude-code",
     "self-learning",

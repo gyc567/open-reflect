@@ -2,5 +2,7 @@
   "name": "open-reflect",
   "version": "1.0.0",
   "description": "Open-Reflect plugin dependencies",
-  "dependencies": {}
+  "dependencies": {
+    "@opencode-ai/plugin": "1.1.20"
+  }
 }

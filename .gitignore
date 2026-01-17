@@ -12,9 +12,7 @@
 .claude/openreflect-queue.json
 .claude/openreflect-backups/
 
-# 项目特定的反射文件（用户知识）
-**/REFLECT.md
-**/.reflect-initialized
+
 
 # 会话数据（包含对话历史）
 .claude/projects/
