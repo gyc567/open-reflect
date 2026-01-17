@@ -100,20 +100,67 @@ chmod +x ~/.claude/plugins/open-reflect/scripts/*.sh
 
 ### OpenCode Plugin
 
-Open-Reflect also provides an OpenCode plugin with the same core functionality:
+Open-Reflect provides an OpenCode plugin with the same core functionality. There are two installation methods:
+
+#### Option 1: One-Click Installation (Recommended)
 
 ```bash
-# Clone the repository
-git clone https://github.com/open-reflect/open-reflect.git
+# Run the installation script to automatically install the plugin
+curl -sSL https://raw.githubusercontent.com/gyc567/open-reflect/master/scripts/install-opencode-plugin.sh | bash
+```
 
+This script will:
+- Clone the repository (temporary)
+- Copy plugin files to `~/.config/opencode/plugin/`
+- Clean up temporary files
+- Display installation status
+
+#### Option 2: Manual Installation
+
+```bash
 # Create OpenCode plugin directory
 mkdir -p ~/.config/opencode/plugin
+
+# Clone the repository
+git clone https://github.com/gyc567/open-reflect.git
 
 # Copy OpenCode plugin files
 cp -r open-reflect/.opencode/plugin/* ~/.config/opencode/plugin/
 
-# The plugin will be automatically loaded by OpenCode
+# Clean up
+rm -rf open-reflect
+
+# Restart OpenCode to load the plugin
 ```
+
+#### Verify Installation
+
+After installation, verify the plugin is working:
+
+```bash
+# Check if plugin files exist
+ls -la ~/.config/opencode/plugin/open-reflect-plugin.ts
+
+# Restart OpenCode and run a test command
+opencode
+/repo --view
+```
+
+If the plugin is installed correctly, you should see:
+```
+📭 No pending learnings. System is up to date.
+```
+
+#### OpenCode Commands
+
+The plugin provides the following commands:
+
+| Command | Description |
+|---------|-------------|
+| `/repo` | Process pending learnings and update REFLECT.md |
+| `/repo --view` | View pending learnings without processing |
+| `/skip-reflect` | Clear all pending learnings |
+| `/view-queue` | View pending learnings without processing |
 
 See [docs/OPENCODE_PLUGIN.md](docs/OPENCODE_PLUGIN.md) for detailed documentation.
 

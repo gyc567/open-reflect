@@ -26,7 +26,7 @@ Open-Reflect OpenCode 插件 - 自学习系统插件，支持自动捕获学习�
 ```
 
 ### 3. 自定义命令
-- `/reflect` - 手动触发反思处理
+- `/repo` - 手动触发反思处理
 - `/skip-reflect` - 跳过当前会话的反思
 - `/view-queue` - 查看待处理的反思队列
 
@@ -39,22 +39,51 @@ Open-Reflect OpenCode 插件 - 自学习系统插件，支持自动捕获学习�
 
 ## 安装
 
-### 方法 1: 从源码安装
-```bash
-git clone https://github.com/gyc567/open-reflect.git
-cd open-reflect
+### 方式一：一键安装（推荐）
 
-# 复制插件到 OpenCode 配置目录
-mkdir -p ~/.config/opencode/plugin
-cp -r .opencode/plugin/* ~/.config/opencode/plugin/
+```bash
+# 运行安装脚本自动安装插件
+curl -sSL https://raw.githubusercontent.com/gyc567/open-reflect/master/scripts/install-opencode-plugin.sh | bash
 ```
 
-### 方法 2: 开发模式
-```bash
-# 在项目目录下
-cd .opencode/plugin
+此脚本将：
+- 克隆仓库（临时）
+- 复制插件文件到 `~/.config/opencode/plugin/`
+- 清理临时文件
+- 显示安装状态
 
-# 插件会自动加载
+### 方式二：手动安装
+
+```bash
+# 克隆仓库
+git clone https://github.com/gyc567/open-reflect.git
+
+# 创建 OpenCode 插件目录
+mkdir -p ~/.config/opencode/plugin
+
+# 复制 OpenCode 插件文件
+cp -r open-reflect/.opencode/plugin/* ~/.config/opencode/plugin/
+
+# 清理
+rm -rf open-reflect
+```
+
+### 验证安装
+
+安装后，验证插件是否正常工作：
+
+```bash
+# 检查插件文件是否存在
+ls -la ~/.config/opencode/plugin/open-reflect-plugin.ts
+
+# 重启 OpenCode 并运行测试命令
+opencode
+/repo --view
+```
+
+如果插件安装正确，您应该看到：
+```
+📭 No pending learnings. System is up to date.
 ```
 
 ## 配置

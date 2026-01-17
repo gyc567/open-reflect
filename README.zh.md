@@ -100,22 +100,69 @@ chmod +x ~/.claude/plugins/open-reflect/scripts/*.sh
 
 ### OpenCode 插件
 
-Open-Reflect 还提供具有相同核心功能的 OpenCode 插件：
+Open-Reflect 还提供具有相同核心功能的 OpenCode 插件。提供两种安装方式：
+
+#### 方式一：一键安装（推荐）
 
 ```bash
-# 克隆仓库
-git clone https://github.com/gyc567/open-reflect.git
+# 运行安装脚本自动安装插件
+curl -sSL https://raw.githubusercontent.com/gyc567/open-reflect/master/scripts/install-opencode-plugin.sh | bash
+```
 
+此脚本将：
+- 克隆仓库（临时）
+- 复制插件文件到 `~/.config/opencode/plugin/`
+- 清理临时文件
+- 显示安装状态
+
+#### 方式二：手动安装
+
+```bash
 # 创建 OpenCode 插件目录
 mkdir -p ~/.config/opencode/plugin
+
+# 克隆仓库
+git clone https://github.com/gyc567/open-reflect.git
 
 # 复制 OpenCode 插件文件
 cp -r open-reflect/.opencode/plugin/* ~/.config/opencode/plugin/
 
-# 插件将被 OpenCode 自动加载
+# 清理
+rm -rf open-reflect
+
+# 重启 OpenCode 以加载插件
 ```
 
-详细文档请参见 [docs/OPENCODE_PLUGIN.md](docs/OPENCODE_PLUGIN.zh.md)。
+#### 验证安装
+
+安装后，验证插件是否正常工作：
+
+```bash
+# 检查插件文件是否存在
+ls -la ~/.config/opencode/plugin/open-reflect-plugin.ts
+
+# 重启 OpenCode 并运行测试命令
+opencode
+/repo --view
+```
+
+如果插件安装正确，您应该看到：
+```
+📭 No pending learnings. System is up to date.
+```
+
+#### OpenCode 命令
+
+插件提供以下命令：
+
+| 命令 | 描述 |
+|------|------|
+| `/repo` | 处理待处理的学习并更新 REFLECT.md |
+| `/repo --view` | 查看待处理的学习而不处理 |
+| `/skip-reflect` | 清除所有待处理的学习 |
+| `/view-queue` | 查看待处理的学习而不处理 |
+
+详细文档请参见 [docs/OPENCODE_PLUGIN.zh.md](docs/OPENCODE_PLUGIN.zh.md)。
 
 ---
 

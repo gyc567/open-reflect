@@ -100,24 +100,69 @@ chmod +x ~/.claude/plugins/open-reflect/scripts/*.sh
 
 ### OpenCode CLI インストール
 
+Open-Reflect は同じコア機能を持つ OpenCode プラグインも提供します。2つのインストール方法：
+
+#### 方法1：ワンクリックインストール（推奨）
+
 ```bash
-# リポジトリをクローン
-git clone https://github.com/gyc567/open-reflect.git
-cd open-reflect
-
-# skill を OpenCode skills ディレクトリにコピー
-mkdir -p ~/.config/opencode/skill
-cp -r .opencode/skill/open-reflect ~/.config/opencode/skill/
-
-# またはプロジェクトディレクトリにコピー
-cp -r .opencode/skill/open-reflect /path/to/your-project/.opencode/skill/
-
-# OpenCode を再起動
+# インストールスクリプトを実行してプラグインを自動インストール
+curl -sSL https://raw.githubusercontent.com/gyc567/open-reflect/master/scripts/install-opencode-plugin.sh | bash
 ```
 
-**注意**: OpenCode サポートは基本です（スキルロードと指示のみ）。完全な機能（自動キャプチャ、hooks、進化追跡）には Claude Code を使用してください。
+このスクリプトは以下のことを行います：
+- リポジトリをクローン（一時的）
+- プラグインファイルを `~/.config/opencode/plugin/` にコピー
+- 一時ファイルをクリーンアップ
+- インストール状況を表示
 
-詳細は [docs/OPENCODE_COMPATIBILITY.jp.md](docs/OPENCODE_COMPATIBILITY.jp.md) を参照。
+#### 方法2：手動インストール
+
+```bash
+# OpenCode プラグインディレクトリを作成
+mkdir -p ~/.config/opencode/plugin
+
+# リポジトリをクローン
+git clone https://github.com/gyc567/open-reflect.git
+
+# OpenCode プラグインファイルをコピー
+cp -r open-reflect/.opencode/plugin/* ~/.config/opencode/plugin/
+
+# クリーンアップ
+rm -rf open-reflect
+
+# プラグインをロードするために OpenCode を再起動
+```
+
+#### インストール確認
+
+インストール後、プラグインが正常に動作しているか確認：
+
+```bash
+# プラグインファイルが存在するか確認
+ls -la ~/.config/opencode/plugin/open-reflect-plugin.ts
+
+# OpenCode を再起動してテストコマンドを実行
+opencode
+/repo --view
+```
+
+プラグインが正しくインストールされていれば、以下が表示されます：
+```
+📭 No pending learnings. System is up to date.
+```
+
+#### OpenCode コマンド
+
+プラグインは以下のコマンドを提供します：
+
+| コマンド | 説明 |
+|----------|------|
+| `/repo` | 保留中の学習を処理して REFLECT.md を更新 |
+| `/repo --view` | 保留中の学習を処理せずに表示 |
+| `/skip-reflect` | すべての保留中の学習をクリア |
+| `/view-queue` | 保留中の学習を処理せずに表示 |
+
+詳細は [docs/OPENCODE_PLUGIN.jp.md](docs/OPENCODE_PLUGIN.jp.md) を参照。
 
 ---
 
