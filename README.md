@@ -1,11 +1,13 @@
 # Open-Reflect
 
-**Advanced self-learning and reflection system for Claude Code with evolutionary knowledge tracking**
+**Advanced self-learning and reflection system with evolutionary knowledge tracking**
 
 > "Learning through reflection, evolution through practice"
 
+**Dual Platform Support**: Claude Code (full plugin) + OpenCode (basic skill)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/open-reflect/open-reflect)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/open-reflect/open-reflect)
 
 ---
 
@@ -97,6 +99,27 @@ chmod +x ~/.claude/plugins/open-reflect/scripts/*.sh
 ```
 
 After installation, **restart Claude Code** (exit and reopen). Hooks will auto-configure and commands will be ready.
+
+### OpenCode CLI Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/open-reflect/open-reflect.git
+cd open-reflect
+
+# Copy skill to OpenCode skills directory
+mkdir -p ~/.config/opencode/skill
+cp -r .opencode/skill/open-reflect ~/.config/opencode/skill/
+
+# OR copy to project directory
+cp -r .opencode/skill/open-reflect /path/to/your-project/.opencode/skill/
+
+# Restart OpenCode
+```
+
+**Note**: OpenCode support is basic (skill loading + instructions only). For full functionality (auto-capture, hooks, evolution tracking), use Claude Code.
+
+See [docs/OPENCODE_COMPATIBILITY.md](docs/OPENCODE_COMPATIBILITY.md) for detailed comparison.
 
 ---
 

@@ -24,6 +24,11 @@ echo "Running integration tests..."
 bash "$PLUGIN_DIR/tests/test-integration.sh"
 echo ""
 
+# Run OpenCode compatibility tests
+echo "Running OpenCode compatibility tests..."
+bash "$PLUGIN_DIR/tests/test-opencode-compat.sh"
+echo ""
+
 echo "════════════════════════════════════════════════════"
 echo "✅ All tests completed!"
 echo "════════════════════════════════════════════════════"

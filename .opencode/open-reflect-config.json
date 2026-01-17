@@ -1,0 +1,26 @@
+{
+  "$schema": "https://opencode.ai/schema/opencode.json",
+  "permission": {
+    "skill": {
+      "open-reflect": "allow",
+      "internal-*": "allow",
+      "experimental-*": "ask"
+    }
+  },
+  "agent": {
+    "plan": {
+      "permission": {
+        "skill": {
+          "open-reflect": "allow"
+        }
+      }
+    },
+    "build": {
+      "permission": {
+        "skill": {
+          "open-reflect": "allow"
+        }
+      }
+    }
+  }
+}

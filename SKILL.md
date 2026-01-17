@@ -4,21 +4,39 @@ description: |
   Advanced self-learning and reflection system with knowledge evolution tracking.
   Captures corrections, success patterns, preferences, and best practices,
   then organizes them in REFLECT.md with full evolution history.
+  Supports both Claude Code (full plugin) and OpenCode (basic skill).
   Use when discussing learnings, corrections, or when user mentions remembering.
   Triggers: "remember this", "use X not Y", "actually...", "Perfect!", corrections, feedback.
 allowed-tools: Read, Write, Edit, Glob, Bash(jq:*), Bash(cat:*), AskUserQuestion, Grep
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: OpenReflect Team
+compatibility: claude-code,opencode
 ---
 
 # Open-Reflect - Advanced Self-Learning & Reflection System
 
-A three-stage system that helps Claude Code learn, reflect, and evolve from all interactions.
+**Dual Platform Support**: Claude Code (full plugin) + OpenCode (basic skill)
+
+A three-stage system that helps AI assistants learn, reflect, and evolve from all interactions.
+
+## Platform Support
+
+### Claude Code (Full Plugin)
+- Location: `~/.claude/plugins/open-reflect/`
+- Features: Auto-capture, hooks, queue management, evolution tracking
+- Commands: `/reflect`, `/reflect --view`, `/reflect --analyze`, `/skip-reflect`
+
+### OpenCode (Basic Skill)
+- Location: `.opencode/skill/open-reflect/SKILL.md` or `~/.config/opencode/skill/open-reflect/`
+- Features: Skill loading, instruction reference, manual operations
+- Usage: `skill({ name: "open-reflect" })`
+
+See [docs/OPENCODE_COMPATIBILITY.md](docs/OPENCODE_COMPATIBILITY.md) for details.
 
 ## How It Works
 
-**Stage 1: Capture (Automatic)**
+**Stage 1: Capture (Automatic on Claude Code, Manual on OpenCode)**
 Enhanced hooks detect multiple learning dimensions and queue them to `~/.claude/openreflect-queue.json`:
 
 | Learning Type | Trigger | Confidence | Example |
@@ -192,14 +210,15 @@ Captures not just corrections but:
 
 | Feature | claude-reflect | open-reflect |
 |---------|---------------|--------------|
-| Learning types | Corrections only | Corrections + Success + Preferences + Best Practices |
-| Data structure | Simple queue | Structured REFLECT.md with evolution |
-| Evolution tracking | None | Full history (refinements, usage, validation) |
-| Priority levels | Confidence only | Priority + Confidence + Tags |
-| Duplicate handling | Basic | Semantic + Conflict detection + Consolidation |
-| Analysis | Basic queue view | Trend analysis + Insights + Recommendations |
-| Multi-target | CLAUDE.md + AGENTS.md | REFLECT.md + CLAUDE.md + AGENTS.md |
-| Context awareness | Project only | Project + Global + Evolution metrics |
+| **Platform Support** | Claude Code only | Claude Code + OpenCode |
+| **Learning types** | Corrections only | Corrections + Success + Preferences + Best Practices |
+| **Data structure** | Simple queue | Structured REFLECT.md with evolution |
+| **Evolution tracking** | None | Full history (refinements, usage, validation) |
+| **Priority levels** | Confidence only | Priority + Confidence + Tags |
+| **Duplicate handling** | Basic | Semantic + Conflict detection + Consolidation |
+| **Analysis** | Basic queue view | Trend analysis + Insights + Recommendations |
+| **Multi-target** | CLAUDE.md + AGENTS.md | REFLECT.md + CLAUDE.md + AGENTS.md |
+| **Context awareness** | Project only | Project + Global + Evolution metrics |
 
 ## Philosophy
 
