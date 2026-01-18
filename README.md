@@ -87,4 +87,4 @@ Expected: `📭 No pending learnings. System is up to date.`
 
 ---
 
-**License**: MIT - See [LICENSE](LICENSE)
+**License**: Apache License 2.0 - See [LICENSE](LICENSE)
