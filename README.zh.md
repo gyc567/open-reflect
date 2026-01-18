@@ -117,71 +117,73 @@ chmod +x ~/.claude/plugins/open-reflect/scripts/*.sh
 📭 No pending learnings. System is up to date.
 ```
 
-### OpenCode 插件
+### OpenCode 技能
 
-Open-Reflect 还提供具有相同核心功能的 OpenCode 插件。提供两种安装方式：
+Open-Reflect 还提供具有相同核心功能的 OpenCode 技能。
 
 #### 方式一：一键安装（推荐）
 
 ```bash
-# 运行安装脚本自动安装插件
-curl -sSL https://raw.githubusercontent.com/gyc567/open-reflect/master/scripts/install-opencode-plugin.sh | bash
+# 克隆仓库
+git clone https://github.com/gyc567/open-reflect.git
+cd open-reflect
+
+# 运行安装脚本
+./.opencode/scripts/install-opencode-skill.sh --force
 ```
 
 此脚本将：
-- 克隆仓库（临时）
-- 复制插件文件到 `~/.config/opencode/plugin/`
-- 清理临时文件
-- 显示安装状态
+- 复制 skill 文件到 `~/.config/opencode/skill/open-reflect/`
+- 包含完整的 AGENTS.md 和 11 条规则
+- 显示安装状态和使用说明
 
 #### 方式二：手动安装
 
 ```bash
-# 创建 OpenCode 插件目录
-mkdir -p ~/.config/opencode/plugin
+# 复制 skill 文件到 OpenCode 配置目录
+cp -r .opencode/skill/open-reflect ~/.config/opencode/skill/
 
-# 克隆仓库
-git clone https://github.com/gyc567/open-reflect.git
-
-# 复制 OpenCode 插件文件
-cp -r open-reflect/.opencode/plugin/* ~/.config/opencode/plugin/
-
-# 清理
-rm -rf open-reflect
-
-# 重启 OpenCode 以加载插件
+# 可选：配置权限
+cat >> ~/.config/opencode/opencode.json << 'EOF'
+{
+  "permission": {
+    "skill": {
+      "open-reflect": "allow"
+    }
+  }
+}
+EOF
 ```
 
-#### 验证安装
+#### 使用方法
 
-安装后，验证插件是否正常工作：
+在 OpenCode 中加载技能：
 
 ```bash
-# 检查插件文件是否存在
-ls -la ~/.config/opencode/plugin/open-reflect-plugin.ts
+# 加载技能
+skill({ name: "open-reflect" })
 
-# 重启 OpenCode 并运行测试命令
-opencode
-/repo --view
+# 处理待处理的学习
+/reflect
+
+# 查看队列
+/reflect --view
+
+# 分析学习趋势
+/reflect --analyze
 ```
 
-如果插件安装正确，您应该看到：
-```
-📭 No pending learnings. System is up to date.
-```
+#### 触发学习捕获
 
-#### OpenCode 命令
+用户可以通过以下方式触发学习捕获：
 
-插件提供以下命令：
-
-| 命令 | 描述 |
-|------|------|
-| `/repo` | 处理待处理的学习并更新 REFLECT.md |
-| `/repo --view` | 查看待处理的学习而不处理 |
-| `/skip-reflect` | 清除所有待处理的学习 |
-| `/view-queue` | 查看待处理的学习而不处理 |
-
-详细文档请参见 [docs/OPENCODE_PLUGIN.zh.md](docs/OPENCODE_PLUGIN.zh.md)。
+| 触发方式 | 示例 | 置信度 |
+|----------|------|--------|
+| 显式标记 | `remember: 使用 Python 虚拟环境` | 0.95 |
+| 修正 | `no, 使用 gpt-5.1 而不是 gpt-5` | 0.90 |
+| 成功模式 | `Perfect! 这正是我想要的` | 0.75 |
+| 偏好 | `我偏好显式类型` | 0.70 |
+| 最佳实践 | `始终先验证输入` | 0.60 |
 
 ---
 
