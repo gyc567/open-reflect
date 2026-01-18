@@ -3,8 +3,13 @@
 #===============================================================================
 # Open-Reflect OpenCode Skill Installer
 #
-# Usage:
-#   ./install.sh [--uninstall] [--force]
+# Usage (from anywhere - RECOMMENDED):
+#   curl -sSL https://raw.githubusercontent.com/gyc567/open-reflect/master/.opencode/scripts/install-opencode-skill.sh | bash
+#
+# Or from the repository:
+#   git clone https://github.com/gyc567/open-reflect.git
+#   cd open-reflect
+#   .opencode/scripts/install-opencode-skill.sh --force
 #
 # Options:
 #   --uninstall   Remove the skill instead of installing
@@ -15,18 +20,37 @@
 set -euo pipefail
 
 # Configuration
+REPO_URL="https://github.com/gyc567/open-reflect.git"
 SKILL_NAME="open-reflect"
-SKILL_SOURCE_DIR=".opencode/skill/${SKILL_NAME}"
 SKILL_TARGET_DIR="${HOME}/.config/opencode/skill/${SKILL_NAME}"
 CONFIG_FILE="${HOME}/.config/opencode/opencode.json"
 OPENCODE_SKILL_DIR="${HOME}/.config/opencode/skill"
+TEMP_DIR=$(mktemp -d)
 
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
+
+echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║  Open-Reflect OpenCode Skill Installer                    ║${NC}"
+echo -e "${BLUE}║  Self-learning system with knowledge evolution tracking   ║${NC}"
+echo -e "${BLUE}╚════════════════════════════════════════════════════════════╝${NC}"
+echo ""
+
+# Parse arguments
+DO_UNINSTALL=false
+DO_FORCE=false
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --uninstall) DO_UNINSTALL=true; shift ;;
+        --force) DO_FORCE=true; shift ;;
+        *) shift ;;
+    esac
+done
 
 #-------------------------------------------------------------------------------
 # Utility Functions
@@ -48,40 +72,92 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+cleanup() {
+    if [[ -d "${TEMP_DIR}" ]]; then
+        rm -rf "${TEMP_DIR}"
+    fi
+}
+trap cleanup EXIT
+
+#-------------------------------------------------------------------------------
+# Uninstall Mode
+#-------------------------------------------------------------------------------
+
+uninstall_skill() {
+    log_info "Uninstalling Open-Reflect skill..."
+
+    if [[ -d "${SKILL_TARGET_DIR}" ]]; then
+        rm -rf "${SKILL_TARGET_DIR}"
+        log_success "Skill removed from: ${SKILL_TARGET_DIR}"
+    else
+        log_warning "Skill not found at: ${SKILL_TARGET_DIR}"
+    fi
+
+    echo ""
+    echo -e "${GREEN}╔════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${GREEN}║  Open-Reflect Skill Uninstalled                          ║${NC}"
+    echo -e "${GREEN}╚════════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo "Note: This only removes the OpenCode skill."
+    echo "For complete removal, also remove:"
+    echo "  - Claude Code plugin: ~/.claude/plugins/open-reflect/"
+    echo "  - Learning data: ~/.claude/openreflect-queue.json"
+    echo ""
+}
+
+#-------------------------------------------------------------------------------
+# Install Mode
+#-------------------------------------------------------------------------------
+
 check_prerequisites() {
     log_info "Checking prerequisites..."
 
-    # Check if running from correct directory
-    if [[ ! -d "${SKILL_SOURCE_DIR}" ]]; then
-        log_error "Skill source directory not found: ${SKILL_SOURCE_DIR}"
-        log_error "Please run this script from the open-reflect repository root"
+    # Check for git (needed to clone repo if not running from repo)
+    if ! command -v git &> /dev/null; then
+        log_error "Git is not installed. Please install Git first."
         exit 1
     fi
-
-    # Check for required files
-    if [[ ! -f "${SKILL_SOURCE_DIR}/SKILL.md" ]]; then
-        log_error "Required file missing: ${SKILL_SOURCE_DIR}/SKILL.md"
-        exit 1
-    fi
+    log_success "Git is installed"
 
     log_success "Prerequisites check passed"
 }
 
-detect_opencode_config() {
-    log_info "Detecting OpenCode configuration..."
+clone_or_use_repo() {
+    log_info "Preparing skill files..."
 
-    # Check if opencode config directory exists
-    if [[ -d "${OPENCODE_SKILL_DIR}" ]]; then
-        log_success "OpenCode skill directory found: ${OPENCODE_SKILL_DIR}"
-        return 0
+    # Try to find the repo root
+    # First, check if SKILL.md exists in the current directory's .opencode/skill/open-reflect
+    CURRENT_DIR="$(pwd)"
+    
+    if [[ -f "${CURRENT_DIR}/.opencode/skill/open-reflect/SKILL.md" ]]; then
+        log_info "Using local files from: ${CURRENT_DIR}"
+        cp -r "${CURRENT_DIR}/.opencode/skill/open-reflect" "${TEMP_DIR}/"
+        log_success "Skill files prepared from local repository"
+    elif [[ -f "$(dirname "${BASH_SOURCE[0]}")/../skill/open-reflect/SKILL.md" ]]; then
+        # Script is in .opencode/scripts/
+        SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+        log_info "Using local files from: ${REPO_ROOT}"
+        cp -r "${REPO_ROOT}/skill/open-reflect" "${TEMP_DIR}/"
+        log_success "Skill files prepared from local repository"
     else
-        log_warning "OpenCode skill directory not found: ${OPENCODE_SKILL_DIR}"
-        log_info "Will attempt to create it"
-        return 1
+        # Clone repository
+        log_info "Cloning repository..."
+        git clone --quiet "${REPO_URL}" "${TEMP_DIR}/open-reflect" 2>/dev/null || {
+            log_error "Failed to clone repository"
+            exit 1
+        }
+        log_success "Repository cloned"
+
+        # Verify files exist
+        if [[ ! -f "${TEMP_DIR}/open-reflect/.opencode/skill/open-reflect/SKILL.md" ]]; then
+            log_error "Skill files not found in repository"
+            exit 1
+        fi
     fi
 }
 
-create_opencode_config() {
+create_opencode_dir() {
     log_info "Creating OpenCode skill directory..."
 
     mkdir -p "${OPENCODE_SKILL_DIR}"
@@ -89,39 +165,49 @@ create_opencode_config() {
     if [[ $? -eq 0 ]]; then
         log_success "Created: ${OPENCODE_SKILL_DIR}"
     else
-        log_error "Failed to create directory: ${OPENCODE_SKILL_DIR}"
+        log_error "Failed to create directory"
         exit 1
     fi
 }
 
 backup_existing() {
     if [[ -d "${SKILL_TARGET_DIR}" ]]; then
-        log_warning "Backing up existing installation..."
-        local backup_dir="${SKILL_TARGET_DIR}.backup.$(date +%Y%m%d_%H%M%S)"
-        mv "${SKILL_TARGET_DIR}" "${backup_dir}"
-        log_success "Backed up to: ${backup_dir}"
+        if [[ "${DO_FORCE}" == true ]]; then
+            log_warning "Backing up existing installation..."
+            local backup_dir="${SKILL_TARGET_DIR}.backup.$(date +%Y%m%d_%H%M%S)"
+            mv "${SKILL_TARGET_DIR}" "${backup_dir}"
+            log_success "Backed up to: ${backup_dir}"
+        else
+            log_warning "Skill already installed at: ${SKILL_TARGET_DIR}"
+            log_info "Use --force to overwrite"
+            exit 0
+        fi
     fi
 }
 
-#-------------------------------------------------------------------------------
-# Installation Functions
-#-------------------------------------------------------------------------------
-
 install_skill() {
-    log_info "Installing Open-Reflect skill for OpenCode..."
+    log_info "Installing Open-Reflect skill..."
 
-    # Create target directory
     mkdir -p "$(dirname "${SKILL_TARGET_DIR}")"
 
+    # Determine source path based on whether we cloned or used local files
+    if [[ -d "${TEMP_DIR}/open-reflect/.opencode/skill/open-reflect" ]]; then
+        # Cloned from remote
+        SOURCE_DIR="${TEMP_DIR}/open-reflect/.opencode/skill/open-reflect"
+    else
+        # Used local files
+        SOURCE_DIR="${TEMP_DIR}/open-reflect"
+    fi
+
     # Copy skill files
-    cp -r "${SKILL_SOURCE_DIR}" "${SKILL_TARGET_DIR}"
+    cp -r "${SOURCE_DIR}" "${SKILL_TARGET_DIR}"
 
     if [[ $? -eq 0 ]]; then
         log_success "Skill installed to: ${SKILL_TARGET_DIR}"
 
         # List installed files
         log_info "Installed files:"
-        find "${SKILL_TARGET_DIR}" -type f -name "*.md" -o -name "*.json" | while read -r file; do
+        find "${SKILL_TARGET_DIR}" -type f \( -name "*.md" -o -name "*.json" \) | while read -r file; do
             echo "  - ${file#$SKILL_TARGET_DIR/}"
         done
     else
@@ -130,7 +216,7 @@ install_skill() {
     fi
 }
 
-update_opencode_config() {
+update_config() {
     log_info "Checking OpenCode configuration..."
 
     if [[ -f "${CONFIG_FILE}" ]]; then
@@ -141,7 +227,8 @@ update_opencode_config() {
             log_info "Skill already referenced in config"
         else
             log_warning "Skill not found in config - manual permission configuration may be needed"
-            log_info "Add to opencode.json:"
+            echo ""
+            echo -e "${YELLOW}To enable the skill, add to ${CONFIG_FILE}:${NC}"
             cat <<EOF
 
 {
@@ -179,7 +266,7 @@ verify_installation() {
 
     # Check rules directory
     if [[ -d "${SKILL_TARGET_DIR}/rules" ]]; then
-        local rule_count=$(find "${SKILL_TARGET_DIR}/rules" -name "*.md" | wc -l | tr -d ' ')
+        local rule_count=$(find "${SKILL_TARGET_DIR}/rules" -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
         log_success "  ✓ rules/ (${rule_count} rules)"
     else
         log_warning "  ✗ rules/ directory (missing)"
@@ -193,11 +280,29 @@ verify_installation() {
     log_success "Installation verified successfully"
 }
 
-print_usage_instructions() {
+#-------------------------------------------------------------------------------
+# Main Execution
+#-------------------------------------------------------------------------------
+
+main() {
+    if [[ "${DO_UNINSTALL}" == true ]]; then
+        uninstall_skill
+        exit 0
+    fi
+
+    # Install mode
+    check_prerequisites
+    clone_or_use_repo
+    create_opencode_dir
+    backup_existing
+    install_skill
+    update_config
+    verify_installation
+
     echo ""
-    echo "==============================================================================="
-    echo "  Open-Reflect Skill Installed Successfully!"
-    echo "==============================================================================="
+    echo -e "${GREEN}╔════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${GREEN}║  Open-Reflect Skill Installed Successfully!               ║${NC}"
+    echo -e "${GREEN}╚════════════════════════════════════════════════════════════╝${NC}"
     echo ""
     echo "Usage in OpenCode:"
     echo ""
@@ -221,97 +326,9 @@ print_usage_instructions() {
     echo "  - AGENTS.md     : Agent rules and patterns"
     echo "  - rules/*.md    : Detailed rule documentation"
     echo ""
-    echo "==============================================================================="
+    echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
+    echo -e "${CYAN}  IMPORTANT: Restart OpenCode to load the new skill          ${NC}"
+    echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
 }
 
-#-------------------------------------------------------------------------------
-# Uninstallation Functions
-#-------------------------------------------------------------------------------
-
-uninstall_skill() {
-    log_info "Uninstalling Open-Reflect skill..."
-
-    if [[ -d "${SKILL_TARGET_DIR}" ]]; then
-        log_info "Removing: ${SKILL_TARGET_DIR}"
-        rm -rf "${SKILL_TARGET_DIR}"
-
-        if [[ $? -eq 0 ]]; then
-            log_success "Skill uninstalled successfully"
-        else
-            log_error "Failed to uninstall skill"
-            exit 1
-        fi
-    else
-        log_warning "Skill not installed at: ${SKILL_TARGET_DIR}"
-        log_info "Nothing to uninstall"
-    fi
-
-    echo ""
-    echo "==============================================================================="
-    echo "  Open-Reflect Skill Uninstalled"
-    echo "==============================================================================="
-    echo ""
-    echo "Note: This only removes the OpenCode skill."
-    echo "For complete removal, also remove:"
-    echo "  - Claude Code plugin: ~/.claude/plugins/open-reflect/"
-    echo "  - Learning data: ~/.claude/openreflect-queue.json"
-    echo "  - REFLECT.md files in your projects"
-    echo ""
-    echo "==============================================================================="
-}
-
-#-------------------------------------------------------------------------------
-# Main Script
-#-------------------------------------------------------------------------------
-
-main() {
-    local do_uninstall=false
-    local do_force=false
-
-    # Parse arguments
-    while [[ $# -gt 0 ]]; do
-        case "$1" in
-            --uninstall)
-                do_uninstall=true
-                shift
-                ;;
-            --force)
-                do_force=true
-                shift
-                ;;
-            *)
-                log_error "Unknown option: $1"
-                echo "Usage: $0 [--uninstall] [--force]"
-                exit 1
-                ;;
-        esac
-    done
-
-    echo ""
-    echo "==============================================================================="
-    echo "  Open-Reflect OpenCode Skill Installer v1.1.0"
-    echo "==============================================================================="
-    echo ""
-
-    if [[ "${do_uninstall}" == true ]]; then
-        # Uninstall mode
-        check_prerequisites
-        uninstall_skill
-    else
-        # Install mode
-        check_prerequisites
-
-        if [[ "${do_force}" == false ]]; then
-            backup_existing
-        fi
-
-        detect_opencode_config || create_opencode_config
-        install_skill
-        update_opencode_config
-        verify_installation
-        print_usage_instructions
-    fi
-}
-
-# Run main function
-main "$@"
+main

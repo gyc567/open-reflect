@@ -117,30 +117,93 @@ chmod +x ~/.claude/plugins/open-reflect/scripts/*.sh
 📭 No pending learnings. System is up to date.
 ```
 
-### OpenCode 技能
+---
 
-Open-Reflect 还提供具有相同核心功能的 OpenCode 技能。
+## 📋 安装
 
-#### 方式一：一键安装（推荐）
+### 前置条件
+
+- 已安装 [Claude Code](https://claude.ai/code) CLI（用于 Claude Code 插件）
+- 已安装 [OpenCode](https://opencode.ai) CLI（用于 OpenCode 技能）
+- `jq` 用于 JSON 处理: `brew install jq`（macOS）
+
+---
+
+### 🚀 快速安装（一键命令）
+
+#### Claude Code 插件（完整功能）
+
+```bash
+# 一键安装 - 克隆仓库，安装插件，验证
+curl -sSL https://raw.githubusercontent.com/gyc567/open-reflect/master/scripts/install-claude-plugin.sh | bash
+```
+
+**功能：**
+- ✅ 检查前置条件（Git）
+- ✅ 临时克隆仓库
+- ✅ 复制插件到 `~/.claude/plugins/open-reflect`
+- ✅ 设置脚本执行权限
+- ✅ 启用插件
+- ✅ 清理缓存
+- ✅ 显示安装状态
+
+#### OpenCode 技能（轻量级）
+
+```bash
+# 一键安装 - 克隆仓库，安装技能，验证
+curl -sSL https://raw.githubusercontent.com/gyc567/open-reflect/master/.opencode/scripts/install-opencode-skill.sh | bash
+```
+
+**功能：**
+- ✅ 检查前置条件（Git）
+- ✅ 克隆仓库或使用本地文件
+- ✅ 创建 `~/.config/opencode/skill/` 目录
+- ✅ 复制技能文件（SKILL.md + AGENTS.md + rules/）
+- ✅ 验证安装
+- ✅ 显示使用说明
+
+---
+
+### 📦 平台对比
+
+| 功能 | Claude Code 插件 | OpenCode 技能 |
+|------|-----------------|---------------|
+| **自动捕获** | ✅ 完整 hooks | ⚪ 手动触发 |
+| **队列管理** | ✅ 完整 | ⚪ 基础 |
+| **演化追踪** | ✅ 完整历史 | ⚪ 静态 |
+| **智能分析** | ✅ 趋势和洞察 | ⚪ 无 |
+| **命令** | `/reflect` | `/reflect` |
+| **命令** | `/skip-reflect` | `/skip-reflect` |
+| **命令** | `/view-queue` | ⚪ 不可用 |
+
+---
+
+### 🔧 手动安装
+
+#### Claude Code（完整插件）
 
 ```bash
 # 克隆仓库
 git clone https://github.com/gyc567/open-reflect.git
 cd open-reflect
 
-# 运行安装脚本
-./.opencode/scripts/install-opencode-skill.sh --force
+# 复制到 Claude 插件目录
+cp -r open-reflect ~/.claude/plugins/open-reflect
+
+# 设置脚本执行权限
+chmod +x ~/.claude/plugins/open-reflect/scripts/*.sh
+
+# 重启 Claude Code 以激活插件
 ```
 
-此脚本将：
-- 复制 skill 文件到 `~/.config/opencode/skill/open-reflect/`
-- 包含完整的 AGENTS.md 和 11 条规则
-- 显示安装状态和使用说明
-
-#### 方式二：手动安装
+#### OpenCode（基础技能）
 
 ```bash
-# 复制 skill 文件到 OpenCode 配置目录
+# 克隆仓库
+git clone https://github.com/gyc567/open-reflect.git
+cd open-reflect
+
+# 复制技能文件到 OpenCode 配置目录
 cp -r .opencode/skill/open-reflect ~/.config/opencode/skill/
 
 # 可选：配置权限
@@ -153,37 +216,51 @@ cat >> ~/.config/opencode/opencode.json << 'EOF'
   }
 }
 EOF
+
+# 重启 OpenCode 以加载技能
 ```
 
-#### 使用方法
+---
 
-在 OpenCode 中加载技能：
+### ✅ 验证安装
+
+#### Claude Code
+
+```bash
+# 重启 Claude Code 并运行测试
+/reflect --view
+```
+
+预期输出：
+```
+📭 No pending learnings. System is up to date.
+```
+
+#### OpenCode
 
 ```bash
 # 加载技能
 skill({ name: "open-reflect" })
 
-# 处理待处理的学习
-/reflect
-
-# 查看队列
-/reflect --view
-
-# 分析学习趋势
-/reflect --analyze
+# 查看可用命令
+/repo --view
 ```
 
-#### 触发学习捕获
+预期输出：
+```
+📭 No pending learnings. System is up to date.
+```
 
-用户可以通过以下方式触发学习捕获：
+---
 
-| 触发方式 | 示例 | 置信度 |
-|----------|------|--------|
-| 显式标记 | `remember: 使用 Python 虚拟环境` | 0.95 |
-| 修正 | `no, 使用 gpt-5.1 而不是 gpt-5` | 0.90 |
-| 成功模式 | `Perfect! 这正是我想要的` | 0.75 |
-| 偏好 | `我偏好显式类型` | 0.70 |
-| 最佳实践 | `始终先验证输入` | 0.60 |
+### 🆘 故障排除
+
+| 问题 | 解决方案 |
+|------|----------|
+| 插件未加载 | 完全重启 Claude Code（Cmd+Q / Ctrl+Q） |
+| 命令无法识别 | 验证插件文件：`ls ~/.claude/plugins/open-reflect/` |
+| 队列未更新 | 检查 hooks：`cat ~/.claude/plugins/open-reflect/hooks/hooks.json` |
+| 权限被拒绝 | 设置脚本执行权限：`chmod +x scripts/*.sh` |
 
 ---
 

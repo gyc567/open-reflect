@@ -68,29 +68,69 @@ Critical learnings are highlighted and processed first:
 
 ### Prerequisites
 
-- [Claude Code](https://claude.ai/code) CLI installed
+- [Claude Code](https://claude.ai/code) CLI installed (for Claude Code plugin)
+- [OpenCode](https://opencode.ai) CLI installed (for OpenCode skill)
 - `jq` for JSON processing: `brew install jq` (macOS)
 
-### Option 1: One-Click Installation (Recommended)
+---
+
+### 🚀 Quick Install (One-Click)
+
+#### Claude Code Plugin (Full Features)
 
 ```bash
-# Run the installation script to automatically install the plugin
+# One-line installation - clone repo, install, verify
 curl -sSL https://raw.githubusercontent.com/gyc567/open-reflect/master/scripts/install-claude-plugin.sh | bash
 ```
 
-This script will:
-- Check prerequisites (Git)
-- Clone the repository (temporary)
-- Copy plugin files to `~/.claude/plugins/open-reflect`
-- Make scripts executable
-- Clean up temporary files
-- Display installation status
+**What it does:**
+- ✅ Checks prerequisites (Git)
+- ✅ Clones repository temporarily
+- ✅ Copies plugin to `~/.claude/plugins/open-reflect`
+- ✅ Makes scripts executable
+- ✅ Enables plugin
+- ✅ Clears cache
+- ✅ Shows installation status
 
-### Option 2: Manual Installation
+#### OpenCode Skill (Lightweight)
+
+```bash
+# One-line installation - clone repo, install skill, verify
+curl -sSL https://raw.githubusercontent.com/gyc567/open-reflect/master/.opencode/scripts/install-opencode-skill.sh | bash
+```
+
+**What it does:**
+- ✅ Checks prerequisites (Git)
+- ✅ Clones repository or uses local files
+- ✅ Creates `~/.config/opencode/skill/` directory
+- ✅ Copies skill files (SKILL.md + AGENTS.md + rules/)
+- ✅ Verifies installation
+- ✅ Shows usage instructions
+
+---
+
+### 📦 Platform Comparison
+
+| Feature | Claude Code Plugin | OpenCode Skill |
+|---------|-------------------|----------------|
+| **Auto Capture** | ✅ Full hooks | ⚪ Manual triggers |
+| **Queue Management** | ✅ Full | ⚪ Basic |
+| **Evolution Tracking** | ✅ Complete history | ⚪ Static |
+| **Smart Analysis** | ✅ Trends & insights | ⚪ None |
+| **Commands** | `/reflect` | `/reflect` |
+| **Commands** | `/skip-reflect` | `/skip-reflect` |
+| **Commands** | `/view-queue` | ⚪ Not available |
+
+---
+
+### 🔧 Manual Installation
+
+#### Claude Code (Full Plugin)
 
 ```bash
 # Clone the repository
 git clone https://github.com/gyc567/open-reflect.git
+cd open-reflect
 
 # Copy to Claude plugins directory
 cp -r open-reflect ~/.claude/plugins/open-reflect
@@ -101,87 +141,71 @@ chmod +x ~/.claude/plugins/open-reflect/scripts/*.sh
 # Restart Claude Code to activate the plugin
 ```
 
-> **Note**: The Claude Code Marketplace installation is coming soon. Use one of the methods above for now.
-
-### Verify Installation
-
-After installation, verify the plugin is working:
+#### OpenCode (Basic Skill)
 
 ```bash
-# Restart Claude Code and run a test command
+# Clone the repository
+git clone https://github.com/gyc567/open-reflect.git
+cd open-reflect
+
+# Copy skill files to OpenCode config
+cp -r .opencode/skill/open-reflect ~/.config/opencode/skill/
+
+# Optional: Configure permissions
+cat >> ~/.config/opencode/opencode.json << 'EOF'
+{
+  "permission": {
+    "skill": {
+      "open-reflect": "allow"
+    }
+  }
+}
+EOF
+
+# Restart OpenCode to load the skill
+```
+
+---
+
+### ✅ Verify Installation
+
+#### Claude Code
+
+```bash
+# Restart Claude Code and run test
 /reflect --view
 ```
 
-If the plugin is installed correctly, you should see:
+Expected output:
 ```
 📭 No pending learnings. System is up to date.
 ```
 
-### OpenCode Plugin
-
-Open-Reflect provides an OpenCode plugin with the same core functionality. There are two installation methods:
-
-#### Option 1: One-Click Installation (Recommended)
+#### OpenCode
 
 ```bash
-# Run the installation script to automatically install the plugin
-curl -sSL https://raw.githubusercontent.com/gyc567/open-reflect/master/scripts/install-opencode-plugin.sh | bash
-```
+# Load the skill
+skill({ name: "open-reflect" })
 
-This script will:
-- Clone the repository (temporary)
-- Copy plugin files to `~/.config/opencode/plugin/`
-- Clean up temporary files
-- Display installation status
-
-#### Option 2: Manual Installation
-
-```bash
-# Create OpenCode plugin directory
-mkdir -p ~/.config/opencode/plugin
-
-# Clone the repository
-git clone https://github.com/gyc567/open-reflect.git
-
-# Copy OpenCode plugin files
-cp -r open-reflect/.opencode/plugin/* ~/.config/opencode/plugin/
-
-# Clean up
-rm -rf open-reflect
-
-# Restart OpenCode to load the plugin
-```
-
-#### Verify Installation
-
-After installation, verify the plugin is working:
-
-```bash
-# Check if plugin files exist
-ls -la ~/.config/opencode/plugin/open-reflect-plugin.ts
-
-# Restart OpenCode and run a test command
-opencode
+# View available commands
 /repo --view
 ```
 
-If the plugin is installed correctly, you should see:
+Expected output:
 ```
 📭 No pending learnings. System is up to date.
 ```
 
-#### OpenCode Commands
+---
 
-The plugin provides the following commands:
+### 🆘 Troubleshooting
 
-| Command | Description |
-|---------|-------------|
-| `/repo` | Process pending learnings and update REFLECT.md |
-| `/repo --view` | View pending learnings without processing |
-| `/skip-reflect` | Clear all pending learnings |
-| `/view-queue` | View pending learnings without processing |
-
-See [docs/OPENCODE_PLUGIN.md](docs/OPENCODE_PLUGIN.md) for detailed documentation.
+| Issue | Solution |
+|-------|----------|
+| Plugin not loading | Restart Claude Code completely (Cmd+Q / Ctrl+Q) |
+| Commands not recognized | Verify plugin files: `ls ~/.claude/plugins/open-reflect/` |
+| Queue not updating | Check hooks: `cat ~/.claude/plugins/open-reflect/hooks/hooks.json` |
+| Permission denied | Make scripts executable: `chmod +x scripts/*.sh` |
 
 ---
 
