@@ -98,8 +98,15 @@ Process queued learnings with human review:
 - `/reflect --view` - View queue details without processing
 - `/reflect --analyze` - Analyze REFLECT.md evolution and provide insights
 - `/reflect --critical-only` - Process only critical priority items
-- `/reflect --scan-history` - Scan past sessions for missed learnings
+- `/reflect --scan-history` - Scan Claude Code history for missed learnings (uses `scan-history.py`)
 - `/skip-reflect` - Discard all queued learnings
+
+**Command Details:**
+| Command | Script | Purpose |
+|---------|--------|---------|
+| `--view` | `check-reflect-queue.sh` | Display pending learnings |
+| `--analyze` | `analyze-evolution.sh` | Analyze REFLECT.md trends |
+| `--scan-history` | `scan-history.py` | Scan history for missed patterns |
 
 **Manual Processing Example:**
 ```

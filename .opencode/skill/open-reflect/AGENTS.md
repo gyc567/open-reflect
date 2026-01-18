@@ -523,8 +523,41 @@ at API boundaries prevents most injection attacks.
 | `/reflect --view` | View queue details without processing |
 | `/reflect --analyze` | Analyze REFLECT.md evolution trends |
 | `/reflect --critical-only` | Process only critical priority items |
-| `/reflect --scan-history` | Scan past sessions for missed learnings |
-| `/skip-reflect` | Discard all queued learnings |
+| `/reflect --scan-history` | Scan past sessions for missed learnings (Python script) |
+
+---
+
+### Command Details: --scan-history
+
+The `/reflect --scan-history` command uses the `scripts/scan-history.py` script to:
+
+1. **Scan Claude Code history** (`~/.claude/history.jsonl`)
+2. **Detect learning patterns**: corrections, successes, preferences, explicit markers
+3. **Compare against existing queue** to avoid duplicates
+4. **Report potential missed learnings** with recommendations
+
+**Pattern Categories Detected:**
+| Category | Patterns |
+|----------|----------|
+| **Correction** | "no, use", "don't use", "actually,", "instead of", "incorrect" |
+| **Success** | "perfect!", "exactly what i wanted", "great!", "nailed it" |
+| **Preference** | "i prefer", "you should use", "i always", "in my code" |
+| **Explicit** | "remember:", "note this", "important:", "don't forget" |
+
+**Usage:**
+```bash
+# Scan all history
+/reflect --scan-history
+
+# Scan for specific project (optional project filter)
+cd /path/to/project && /reflect --scan-history
+```
+
+**Output includes:**
+- Pattern summary (counts per category)
+- Potential missed learnings with examples
+- Recommendations based on detected patterns
+- Session statistics
 
 ---
 
